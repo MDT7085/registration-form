@@ -1,42 +1,212 @@
-Create a complete GitHub project for a Registration Form website using HTML, CSS, and JavaScript.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Tracker</title>
+    <style>
+        :root {
+            --primary-bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --income-color: #2ecc71;
+            --expense-color: #e74c3c;
+            --text-main: #333;
+        }
 
-Project Requirements:
-- The project should work on GitHub Pages.
-- The main file should be named index.html.
-- The design should be clean, simple, and professional.
-- The layout should be responsive for desktop and mobile.
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
 
-The registration form should include the following fields:
-1. Full Name
-2. Gender (dropdown: Male, Female, Other)
-3. Date of Birth
-4. Phone Number
-5. Email Address
-6. Address
-7. Qualification
-8. Computer Skills
-9. Work Experience
-10. Submit Button
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
 
-Functionality Requirements:
-- Validate required fields.
-- When the user submits the form, prevent page refresh.
-- Display a success message like: "Registration Successful".
-- Clear the form after submission.
+        h2 { text-align: center; margin-bottom: 20px; }
 
-Project Structure:
-registration-form/
- ├── index.html
- ├── style.css
- └── script.js
+        .balance-container {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-File Responsibilities:
-- index.html should contain the form structure.
-- style.css should contain modern and clean styling.
-- script.js should handle form submission and success message.
+        .inc-exp-container {
+            display: flex;
+            justify-content: space-between;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
 
-Additional Requirements:
-- Use simple modern CSS.
-- Center the form on the page.
-- Add a card-style layout with shadow.
-- Use clear labels and spacing for each field.
+        .inc-exp-container div { flex: 1; text-align: center; }
+        .inc-exp-container div:first-of-type { border-right: 1px solid #dedede; }
+
+        .money { font-size: 20px; letter-spacing: 1px; margin: 5px 0; }
+        .plus { color: var(--income-color); }
+        .minus { color: var(--expense-color); }
+
+        form input, form select, form button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #5d5dff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .list {
+            list-style-type: none;
+            padding: 0;
+            margin-bottom: 40px;
+        }
+
+        .list li {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .list li.plus { border-right: 5px solid var(--income-color); }
+        .list li.minus { border-right: 5px solid var(--expense-color); }
+
+        .delete-btn {
+            cursor: pointer;
+            background-color: #e74c3c;
+            border: 0;
+            color: #fff;
+            font-size: 10px;
+            line-height: 20px;
+            padding: 2px 5px;
+            margin-left: 10px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Expense Tracker</h2>
+
+        <div class="balance-container">
+            <h4>Your Balance</h4>
+            <h1 id="balance">₹0.00</h1>
+        </div>
+
+        <div class="inc-exp-container">
+            <div>
+                <h4>Income</h4>
+                <p id="money-plus" class="money plus">+₹0.00</p>
+            </div>
+            <div>
+                <h4>Expense</h4>
+                <p id="money-minus" class="money minus">-₹0.00</p>
+            </div>
+        </div>
+
+        <h3>Add Transaction</h3>
+        <form id="form">
+            <input type="text" id="text" placeholder="Enter description..." required />
+            <input type="number" id="amount" placeholder="Amount (Negative for expense)" required />
+            <button class="btn">Add Transaction</button>
+        </form>
+
+        <h3>History</h3>
+        <ul id="list" class="list"></ul>
+    </div>
+
+    <script>
+        const balance = document.getElementById('balance');
+        const money_plus = document.getElementById('money-plus');
+        const money_minus = document.getElementById('money-minus');
+        const list = document.getElementById('list');
+        const form = document.getElementById('form');
+        const text = document.getElementById('text');
+        const amount = document.getElementById('amount');
+
+        const localStorageTransactions = JSON.parse(localStorage.getItem('transactions'));
+        let transactions = localStorage.getItem('transactions') !== null ? localStorageTransactions : [];
+
+        function addTransaction(e) {
+            e.preventDefault();
+            const transaction = {
+                id: Math.floor(Math.random() * 100000000),
+                text: text.value,
+                amount: +amount.value
+            };
+            transactions.push(transaction);
+            addTransactionDOM(transaction);
+            updateValues();
+            updateLocalStorage();
+            text.value = '';
+            amount.value = '';
+        }
+
+        function addTransactionDOM(transaction) {
+            const sign = transaction.amount < 0 ? '-' : '+';
+            const item = document.createElement('li');
+            item.classList.add(transaction.amount < 0 ? 'minus' : 'plus');
+            item.innerHTML = `
+                ${transaction.text} <span>${sign}${Math.abs(transaction.amount)}</span>
+                <button class="delete-btn" onclick="removeTransaction(${transaction.id})">x</button>
+            `;
+            list.appendChild(item);
+        }
+
+        function updateValues() {
+            const amounts = transactions.map(t => t.amount);
+            const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2);
+            const income = amounts.filter(item => item > 0).reduce((acc, item) => (acc += item), 0).toFixed(2);
+            const expense = (amounts.filter(item => item < 0).reduce((acc, item) => (acc += item), 0) * -1).toFixed(2);
+
+            balance.innerText = `₹${total}`;
+            money_plus.innerText = `+₹${income}`;
+            money_minus.innerText = `-₹${expense}`;
+        }
+
+        function removeTransaction(id) {
+            transactions = transactions.filter(t => t.id !== id);
+            updateLocalStorage();
+            init();
+        }
+
+        function updateLocalStorage() {
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+        }
+
+        function init() {
+            list.innerHTML = '';
+            transactions.forEach(addTransactionDOM);
+            updateValues();
+        }
+
+        init();
+        form.addEventListener('submit', addTransaction);
+    </script>
+</body>
+</html>
