@@ -3,342 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HOTEL ROYAL INN - Professional PMS</title>
+    <title>HOTEL ROYAL INN - Full Management System</title>
     <style>
-        :root {
-            --primary: #002347;
-            --accent: #d4af37;
-            --income: #27ae60;
-            --expense: #e74c3c;
-            --available: #2ecc71;
-            --booked: #c0392b;
-            --bg: #f4f7f6;
-        }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 0; }
-        
-        /* Header & Branding */
+        :root { --primary: #002347; --accent: #d4af37; --income: #27ae60; --expense: #e74c3c; --available: #2ecc71; --booked: #c0392b; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; }
         header { background: var(--primary); color: white; padding: 20px; text-align: center; border-bottom: 5px solid var(--accent); }
         .dev-header { color: var(--accent); font-weight: bold; font-size: 14px; letter-spacing: 1px; margin-top: 5px; }
-
-        /* Admin Login Overlay */
         #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--primary); z-index: 2000; display: flex; align-items: center; justify-content: center; color: white; }
-        .login-box { background: white; padding: 30px; border-radius: 12px; color: #333; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 300px; }
-
+        .login-box { background: white; padding: 30px; border-radius: 12px; color: #333; text-align: center; width: 300px; }
         .container { max-width: 1300px; margin: 20px auto; padding: 0 20px; display: none; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h3 { color: var(--primary); border-left: 5px solid var(--accent); padding-left: 10px; margin-top: 0; margin-bottom: 15px; }
-
-        /* Room Grid Layout */
+        h3 { color: var(--primary); border-left: 5px solid var(--accent); padding-left: 10px; margin: 0 0 15px 0; }
         .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-bottom: 20px; }
         .room { padding: 15px 5px; text-align: center; border-radius: 6px; color: white; cursor: pointer; font-weight: bold; min-height: 70px; display: flex; flex-direction: column; justify-content: center; }
         .room small { font-size: 10px; font-weight: normal; background: rgba(0,0,0,0.2); padding: 2px; margin-top: 4px; border-radius: 3px; }
         .room.available { background: var(--available); }
         .room.booked { background: var(--booked); }
-
-        /* Management Grid */
         .main-layout { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; }
-        @media (max-width: 900px) { .main-layout { grid-template-columns: 1fr; } }
-
-        /* Forms & Inputs */
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        label { font-size: 11px; font-weight: bold; color: #666; }
-        input, select, button { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        input, select, button { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         .btn-action { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; padding: 12px; margin-top: 10px; }
-        .btn-action:hover { opacity: 0.9; }
-
-        /* Reports & Stats */
-        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f9f9f9; padding: 15px; border-radius: 6px; border: 1px solid #eee; }
-        .report-item { font-weight: bold; color: #444; }
-
-        /* Slip Styles */
-        #slip-box { display: none; padding: 30px; background: white; border: 2px solid #333; max-width: 400px; margin: 20px auto; position: relative; }
-        @media print { body * { display: none; } #slip-box, #slip-box * { display: block; } #print-btn, #close-btn { display: none; } }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th, td { padding: 10px; border: 1px solid #eee; text-align: left; }
+        th { background: #f8f9fa; color: var(--primary); }
+        .rep-val { font-weight: bold; color: var(--primary); }
+        #slip-box { display: none; padding: 30px; background: white; border: 2px solid #333; max-width: 400px; margin: 20px auto; }
+        @media print { body * { display: none; } #slip-box, #slip-box * { display: block; } }
     </style>
 </head>
 <body>
 
-<div id="login-overlay">
-    <div class="login-box">
-        <h2 style="margin-bottom:0;">HOTEL ROYAL INN</h2>
-        <div class="dev-header">BY: MATINDRA TRIPURA</div>
-        <hr>
-        <input type="password" id="login-pass" placeholder="Password (Try 1234)" style="margin-top:10px;">
-        <button onclick="checkLogin()" class="btn-action" style="width:100%;">LOGIN</button>
-    </div>
-</div>
+<div id="login-overlay"><div class="login-box"><h2>HOTEL ROYAL INN</h2><div class="dev-header">BY: MATINDRA TRIPURA</div><hr><input type="password" id="l-pass" placeholder="Password (1234)" style="margin-top:10px;"><button onclick="checkLogin()" class="btn-action">LOGIN</button></div></div>
 
-<header>
-    <h1>HOTEL ROYAL INN</h1>
-    <div class="dev-header">Website Design & Developed by: MATINDRA TRIPURA</div>
-</header>
+<header><h1>HOTEL ROYAL INN</h1><div class="dev-header">Website Design & Developed by: MATINDRA TRIPURA</div></header>
 
-<div class="container" id="main-app">
-    
-    <div class="card">
-        <h3>Room Availability & Booking Details</h3>
-        <p style="font-size: 12px; color: #666;">*Click a booked (Red) room to Check-out. Click available (Green) to manually block.</p>
-        <div id="room-container"></div>
-    </div>
+<div class="container" id="app">
+    <div class="card"><h3>Room Status</h3><div id="room-container"></div></div>
 
     <div class="main-layout">
-        
         <div class="card">
-            <h3>Guest Check-In Form</h3>
+            <h3>Guest Check-In</h3>
             <form id="checkin-form">
-                <div class="form-row">
-                    <div><label>Guest Name</label><input type="text" id="g-name" required></div>
-                    <div><label>Phone Number</label><input type="tel" id="g-phone" required></div>
-                </div>
-                <div class="form-row">
-                    <div><label>Coming From</label><input type="text" id="g-from"></div>
-                    <div><label>Going To</label><input type="text" id="g-to"></div>
-                </div>
-                <div class="form-row">
-                    <div><label>Room No</label><select id="g-room-select"></select></div>
-                    <div><label>Room Type</label>
-                        <select id="g-type">
-                            <option>Single AC</option><option>Double AC</option><option>Deluxe Suite</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div><label>Tariff / Day (₹)</label><input type="number" id="g-tariff" required></div>
-                    <div><label>Total Days</label><input type="number" id="g-days" value="1" required></div>
-                </div>
-                <div class="form-row">
-                    <div><label>PAX (Persons)</label><input type="number" id="g-pax" value="1"></div>
-                    <div><label>Visit Purpose</label><input type="text" id="g-purpose"></div>
-                </div>
-                <button type="submit" class="btn-action">Check-In & Generate Booking Slip</button>
+                <div class="form-row"><input type="text" id="g-name" placeholder="Guest Name" required><input type="tel" id="g-phone" placeholder="Phone" required></div>
+                <div class="form-row"><input type="text" id="g-from" placeholder="Coming From"><input type="text" id="g-to" placeholder="Going To"></div>
+                <div class="form-row"><select id="g-room-sel"></select><select id="g-type"><option>Single AC</option><option>Double AC</option><option>Deluxe Suite</option></select></div>
+                <div class="form-row"><input type="number" id="g-tariff" placeholder="Tariff/Day" required><input type="number" id="g-days" placeholder="Days" value="1" required></div>
+                <button type="submit" class="btn-action">Check-In & Print Slip</button>
             </form>
         </div>
 
         <div class="card">
-            <h3>Hotel Accounts (Income/Expenses)</h3>
+            <h3>Accounts Entry</h3>
             <form id="acc-form">
-                <label>Transaction Type</label>
-                <select id="acc-type" onchange="loadCategories()">
-                    <option value="income">Income (+)</option>
-                    <option value="expense">Expense (-)</option>
-                </select>
-                
-                <label>Category</label>
-                <select id="acc-cat"></select>
-                
-                <label>Amount (₹)</label>
-                <input type="number" id="acc-amt" required>
-                
-                <button type="submit" class="btn-action" style="background:var(--income);">Save Transaction</button>
+                <select id="acc-type" onchange="loadCats()"><option value="income">Income (+)</option><option value="expense">Expense (-)</option></select>
+                <select id="acc-cat" style="margin-top:10px;"></select>
+                <input type="number" id="acc-amt" placeholder="Amount (₹)" style="margin-top:10px;" required>
+                <button type="submit" class="btn-action" style="background:var(--income)">Save Entry</button>
             </form>
+        </div>
+    </div>
 
-            <h3 style="margin-top:25px;">Live Sales Reports</h3>
-            <div class="report-grid">
-                <div class="report-item">Daily Room Sale:</div><div id="rep-d-room">₹0</div>
-                <div class="report-item">Daily Food Sale:</div><div id="rep-d-food">₹0</div>
-                <div class="report-item" style="border-top:1px solid #ddd; padding-top:5px;">Month Room:</div><div id="rep-m-room" style="border-top:1px solid #ddd; padding-top:5px;">₹0</div>
-                <div class="report-item">Month Food:</div><div id="rep-m-food">₹0</div>
+    <div class="card">
+        <h3>Daily & Monthly Sales Summary</h3>
+        <div class="form-row">
+            <div style="background:#e8f5e9; padding:15px; border-radius:8px;">
+                <b>Daily Room Sale:</b> <span id="d-room" class="rep-val">₹0</span><br>
+                <b>Daily Food Sale:</b> <span id="d-food" class="rep-val">₹0</span>
+            </div>
+            <div style="background:#e3f2fd; padding:15px; border-radius:8px;">
+                <b>Monthly Room Sale:</b> <span id="m-room" class="rep-val">₹0</span><br>
+                <b>Monthly Food Sale:</b> <span id="m-food" class="rep-val">₹0</span>
             </div>
         </div>
     </div>
 
-    <div class="card">
-        <h3>Account History</h3>
-        <div style="overflow-x:auto;">
-            <table style="width:100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background:#eee;">
-                        <th style="padding:10px; text-align:left;">Date</th>
-                        <th style="padding:10px; text-align:left;">Category</th>
-                        <th style="padding:10px; text-align:left;">Amount</th>
-                        <th style="padding:10px; text-align:left;">Type</th>
-                    </tr>
-                </thead>
-                <tbody id="hist-body"></tbody>
-            </table>
+    <div class="main-layout">
+        <div class="card">
+            <h3>Income Source Report (Current Month)</h3>
+            <table id="inc-report"><thead><tr><th>Source</th><th>Amount</th></tr></thead><tbody></tbody></table>
+        </div>
+        <div class="card">
+            <h3>Expense Source Report (Current Month)</h3>
+            <table id="exp-report"><thead><tr><th>Source</th><th>Amount</th></tr></thead><tbody></tbody></table>
         </div>
     </div>
 </div>
 
-<div id="slip-box">
-    <center>
-        <h2 style="margin:0;">HOTEL ROYAL INN</h2>
-        <p style="font-size:10px; color:#555;">SANTIRBAZAR, SOUTH TRIPURA</p>
-        <hr>
-        <h4>BOOKING RECEIPT</h4>
-    </center>
-    <div id="slip-content" style="font-size:13px; line-height:1.8;"></div>
-    <hr>
-    <div style="font-size:11px; text-align:center;">
-        <p>Developed by Matindra Tripura</p>
-        <button id="print-btn" onclick="window.print()" class="btn-action">PRINT SLIP</button>
-        <button id="close-btn" onclick="closeSlip()" class="btn-action" style="background:#666;">CLOSE</button>
-    </div>
-</div>
+<div id="slip-box"><center><h2>HOTEL ROYAL INN</h2><hr></center><div id="slip-content"></div><hr><center><button onclick="window.print()" class="btn-action">PRINT</button><button onclick="location.reload()" class="btn-action" style="background:#666">CLOSE</button></center></div>
 
 <script>
-    const ROOM_MAP = {
-        "1st Floor": [117, 118],
-        "2nd Floor": [101, 102, 103, 104, 105, 106, 107, 108],
-        "3rd Floor": [109, 110, 111, 112, 114, 115, 116]
-    };
-
+    const ROOMS = {"1st Floor": [117,118], "2nd Floor": [101,102,103,104,105,106,107,108], "3rd Floor": [109,110,111,112,114,115,116]};
     const CATS = {
         income: ["ROOM SALE", "ROOM FOOD SALE", "WATER SALE", "COFEE SALE", "EVENT"],
         expense: ["SABJI MARKETING", "MEAT", "FISH", "STAFF SALARY", "HOTEL MAINTAIN", "LPG GAS", "HOUSE KEEPING MATERIALS"]
     };
+    let trans = JSON.parse(localStorage.getItem('h_trans')) || [];
+    let books = JSON.parse(localStorage.getItem('h_books')) || {};
 
-    let transactions = JSON.parse(localStorage.getItem('royal_inn_trans')) || [];
-    let bookings = JSON.parse(localStorage.getItem('royal_inn_books')) || {};
+    function checkLogin() { if(document.getElementById('l-pass').value === "1234") { document.getElementById('login-overlay').style.display='none'; document.getElementById('app').style.display='block'; init(); } else alert("Wrong Pass"); }
 
-    function checkLogin() {
-        if(document.getElementById('login-pass').value === "1234") {
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            initApp();
-        } else { alert("Incorrect Password"); }
+    function init() { loadCats(); renderRooms(); renderReports(); }
+
+    function loadCats() { 
+        const t = document.getElementById('acc-type').value; 
+        document.getElementById('acc-cat').innerHTML = CATS[t].map(c => `<option value="${c}">${c}</option>`).join(''); 
     }
 
-    function initApp() {
-        loadCategories();
-        renderRoomGrid();
-        renderFinance();
-    }
-
-    function loadCategories() {
-        const type = document.getElementById('acc-type').value;
-        const catSelect = document.getElementById('acc-cat');
-        catSelect.innerHTML = CATS[type].map(c => `<option value="${c}">${c}</option>`).join('');
-    }
-
-    function renderRoomGrid() {
-        const container = document.getElementById('room-container');
-        const select = document.getElementById('g-room-select');
-        container.innerHTML = ''; select.innerHTML = '';
-
-        for (const [floor, rooms] of Object.entries(ROOM_MAP)) {
-            container.innerHTML += `<div style="font-weight:bold; margin-top:10px;">${floor}</div>`;
-            const grid = document.createElement('div');
-            grid.className = 'room-grid';
-            
-            rooms.forEach(num => {
-                const booking = bookings[num];
-                const div = document.createElement('div');
-                div.className = `room ${booking ? 'booked' : 'available'}`;
-                div.innerHTML = `<b>Room ${num}</b>`;
-                
-                if(booking) {
-                    div.innerHTML += `<small>${booking.name}<br>${booking.days} Days</small>`;
-                    div.onclick = () => checkout(num);
-                } else {
-                    div.onclick = () => quickBlock(num);
-                    select.innerHTML += `<option value="${num}">${num}</option>`;
-                }
-                grid.appendChild(div);
+    function renderRooms() {
+        const cont = document.getElementById('room-container'); const sel = document.getElementById('g-room-sel');
+        cont.innerHTML = ''; sel.innerHTML = '';
+        for (const [f, rs] of Object.entries(ROOMS)) {
+            cont.innerHTML += `<b>${f}</b>`; const g = document.createElement('div'); g.className='room-grid';
+            rs.forEach(n => {
+                const b = books[n]; const d = document.createElement('div'); d.className = `room ${b?'booked':'available'}`;
+                d.innerHTML = `<b>${n}</b>${b?`<small>${b.name}<br>${b.days} Days</small>`:''}`;
+                if(b) d.onclick = () => { if(confirm("Checkout Room "+n+"?")) { delete books[n]; save(); } };
+                else { sel.innerHTML += `<option value="${n}">${n}</option>`; }
+                g.appendChild(d);
             });
-            container.appendChild(grid);
-        }
-    }
-
-    function quickBlock(num) {
-        if(confirm(`Manually mark Room ${num} as Booked?`)) {
-            bookings[num] = { name: "Manual Block", days: "N/A" };
-            save();
-        }
-    }
-
-    function checkout(num) {
-        if(confirm(`Confirm Checkout for Room ${num}?`)) {
-            delete bookings[num];
-            save();
+            cont.appendChild(g);
         }
     }
 
     document.getElementById('checkin-form').onsubmit = (e) => {
-        e.preventDefault();
-        const rNo = document.getElementById('g-room-select').value;
-        const data = {
-            name: document.getElementById('g-name').value,
-            phone: document.getElementById('g-phone').value,
-            days: document.getElementById('g-days').value,
-            tariff: document.getElementById('g-tariff').value,
-            from: document.getElementById('g-from').value,
-            date: new Date().toLocaleDateString()
-        };
-
-        bookings[rNo] = data;
-        // Auto-log Room Sale income
-        transactions.push({
-            date: new Date().toISOString().split('T')[0],
-            cat: "ROOM SALE",
-            amt: parseFloat(data.days * data.tariff),
-            type: 'income'
-        });
-        
-        save();
-        generateSlip(rNo, data);
-        e.target.reset();
+        e.preventDefault(); const n = document.getElementById('g-room-sel').value;
+        const d = { name: document.getElementById('g-name').value, days: document.getElementById('g-days').value, tariff: document.getElementById('g-tariff').value, date: new Date().toLocaleDateString() };
+        books[n] = d; trans.push({ date: new Date().toISOString().split('T')[0], cat: "ROOM SALE", amt: d.days*d.tariff, type: 'income' });
+        save(); showSlip(n, d);
     };
 
     document.getElementById('acc-form').onsubmit = (e) => {
-        e.preventDefault();
-        transactions.push({
-            date: new Date().toISOString().split('T')[0],
-            cat: document.getElementById('acc-cat').value,
-            amt: parseFloat(document.getElementById('acc-amt').value),
-            type: document.getElementById('acc-type').value
-        });
-        save();
-        e.target.reset();
+        e.preventDefault(); trans.push({ date: new Date().toISOString().split('T')[0], cat: document.getElementById('acc-cat').value, amt: parseFloat(document.getElementById('acc-amt').value), type: document.getElementById('acc-type').value });
+        save(); e.target.reset();
     };
 
-    function generateSlip(room, data) {
-        document.getElementById('main-app').style.opacity = '0.1';
-        document.getElementById('slip-box').style.display = 'block';
-        document.getElementById('slip-content').innerHTML = `
-            <p><b>Date:</b> ${data.date}</p>
-            <p><b>Guest:</b> ${data.name}</p>
-            <p><b>Phone:</b> ${data.phone}</p>
-            <p><b>Room No:</b> ${room}</p>
-            <p><b>Staying for:</b> ${data.days} Day(s)</p>
-            <p><b>Rate:</b> ₹${data.tariff} / day</p>
-            <p style="font-size:16px; border-top:1px dashed #000; padding-top:10px;"><b>TOTAL PAID: ₹${data.days * data.tariff}</b></p>
-        `;
+    function showSlip(n, d) { 
+        document.getElementById('app').style.display='none'; document.getElementById('slip-box').style.display='block';
+        document.getElementById('slip-content').innerHTML = `<p><b>Guest:</b> ${d.name}</p><p><b>Room:</b> ${n}</p><p><b>Days:</b> ${d.days}</p><p><b>Total:</b> ₹${d.days*d.tariff}</p>`;
     }
 
-    function closeSlip() {
-        document.getElementById('slip-box').style.display = 'none';
-        document.getElementById('main-app').style.opacity = '1';
-    }
+    function save() { localStorage.setItem('h_trans', JSON.stringify(trans)); localStorage.setItem('h_books', JSON.stringify(books)); renderRooms(); renderReports(); }
 
-    function save() {
-        localStorage.setItem('royal_inn_trans', JSON.stringify(transactions));
-        localStorage.setItem('royal_inn_books', JSON.stringify(bookings));
-        renderRoomGrid();
-        renderFinance();
-    }
+    function renderReports() {
+        const today = new Date().toISOString().split('T')[0]; const month = today.substring(0,7);
+        let dr=0, df=0, mr=0, mf=0; let iMap = {}, eMap = {};
+        
+        CATS.income.forEach(c => iMap[c] = 0); CATS.expense.forEach(c => eMap[c] = 0);
 
-    function renderFinance() {
-        const body = document.getElementById('hist-body'); body.innerHTML = '';
-        let dr = 0, df = 0, mr = 0, mf = 0;
-        const today = new Date().toISOString().split('T')[0];
-        const month = today.substring(0, 7);
-
-        transactions.slice().reverse().forEach(t => {
-            if(t.date === today) {
-                if(t.cat === "ROOM SALE") dr += t.amt;
-                if(t.cat === "ROOM FOOD SALE") df += t.amt;
-            }
+        trans.forEach(t => {
+            if(t.date === today) { if(t.cat==="ROOM SALE") dr+=t.amt; if(t.cat==="ROOM FOOD SALE") df+=t.amt; }
             if(t.date.startsWith(month)) {
-                if(t.cat === "ROOM SALE") mr += t.amt;
-                if(t.cat === "ROOM FOOD SALE") mf += t.amt;
+                if(t.cat==="ROOM SALE") mr+=t.amt; if(t.cat==="ROOM FOOD SALE") mf+=t.amt;
+                if(t.type==='income') iMap[t.cat] = (iMap[t.cat] || 0) + t.amt;
+                else eMap[t.cat] = (eMap[t.cat] || 0) + t.amt;
             }
-            body.innerHTML += `<tr><td>${t.date}</td><td>${t.cat}</td><td>₹${t.amt}</td><td style="color:${t.type=='income'?'green':'red'}">${t.type.toUpperCase()}</td></tr>`;
         });
 
-        document.getElementById('rep-d-room').innerText = "₹" + dr;
-        document.getElementById('rep-d-food').innerText = "₹" + df;
-        document.getElementById('rep-m-room').innerText = "₹" + mr;
-        document.getElementById('rep-m-food').innerText = "₹" + mf;
+        document.getElementById('d-room').innerText = "₹"+dr; document.getElementById('d-food').innerText = "₹"+df;
+        document.getElementById('m-room').innerText = "₹"+mr; document.getElementById('m-food').innerText = "₹"+mf;
+
+        const iBody = document.querySelector('#inc-report tbody'); iBody.innerHTML = '';
+        Object.entries(iMap).forEach(([k,v]) => iBody.innerHTML += `<tr><td>${k}</td><td>₹${v}</td></tr>`);
+        
+        const eBody = document.querySelector('#exp-report tbody'); eBody.innerHTML = '';
+        Object.entries(eMap).forEach(([k,v]) => eBody.innerHTML += `<tr><td>${k}</td><td>₹${v}</td></tr>`);
     }
 </script>
 </body>
