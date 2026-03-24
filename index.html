@@ -3,6 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Management System</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --income: #27ae60;
+            --expense: #e74c3c;
+            --bg: #f8f9fa;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 900px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+        
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h2, h3 { color: var(--primary); margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        .stats { display: flex; justify-content: space-around; text-align: center; }
+        .stat-box h1 { margin: 5px 0; font-size: 24px; }
+        
+        form select, form input, form button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { background: var(--primary); color: white; font-weight: bold; border: none; cursor: pointer; transition: 0.3s; }
+        button:hover { opacity: 0.9; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        .type-inc { color: var(--income); font-weight: bold; }
+        .type-exp { color: var(--expense); font-weight: bold; }
+        
+        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f0f2f5; padding: 15px; border-radius: 8px; }
+        .report-item { font-size: 14px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="text-align: center;">Hotel Dashboard</h2>
+
+    <div class="card stats">
+        <div class="stat-box"><h4>Balance</h4><h1 id="total-balance">₹0</h1></div>
+        <div class="stat-box"><h4>Income</h4><h1 id="total-income" style="color: var(--income);">₹0</h1></div>
+        <div class="stat-box"><h4>Expenses</h4><h1 id="total-expense" style="color: var(--expense);">₹0</h1></div>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h3>New Entry</h3>
+            <form id="transaction-form">
+                <label>Type</label>
+                <select id="type" onchange="updateCategories()">
+                    <option value="income">Income (+)</option>
+                    <option value="expense">Expense (-)</option>
+                </select>
+
+                <label>Category</label>
+                <select id="category">
+                    </select>
+
+                <label>Amount (₹)</label>
+                <input type="number" id="amount" placeholder="0.00" required>
+                
+                <label>Date</label>
+                <input type="date" id="date" required>
+
+                <button type="submit">Save Entry</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Sales Reports</h3>
+            <div class="report-grid">
+                <div class="report-item">Daily Room Sale:</div><div id="d-room">₹0</div>
+                <div class="report-item">Daily Food Sale:</div><div id="d-food">₹0</div>
+                <hr style="grid-column: span 2; width: 100%;">
+                <div class="report-item">Monthly Room Sale:</div><div id="m-room">₹0</div>
+                <div class="report-item">Monthly Food Sale:</div><div id="m-food">₹0</div>
+            </div>
+            <p style="font-size: 11px; color: #666; margin-top: 10px;">*Reports auto-update based on the current date.</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Recent Transactions</h3>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const categories = {
+        income: ["ROOM SALE", "ROOM FOOD SALE", "WATER SALE", "COFEE SALE", "EVENT"],
+        expense: ["SABJI MARKETING", "MEAT", "FISH", "STAFF SALARY", "HOTEL MAINTAIN", "LPG GAS", "HOUSE KEEPING MATERIALS"]
+    };
+
+    let transactions = JSON.parse(localStorage.getItem('hotel_data')) || [];
+
+    function updateCategories() {
+        const type = document.getElementById('type').value;
+        const catSelect = document.getElementById('category');
+        catSelect.innerHTML = categories[type].map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+
+    document.getElementById('transaction-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const entry = {
+            id: Date.now(),
+            type: document.getElementById('type').value,
+            category: document.getElementById('category').value,
+            amount: parseFloat(document.getElementById('amount').value),
+            date: document.getElementById('date').value
+        };
+        transactions.push(entry);
+        saveAndRefresh();
+        e.target.reset();
+        setDefaultDate();
+    });
+
+    function saveAndRefresh() {
+        localStorage.setItem('hotel_data', JSON.stringify(transactions));
+        render();
+    }
+
+    function deleteEntry(id) {
+        transactions = transactions.filter(t => t.id !== id);
+        saveAndRefresh();
+    }
+
+    function setDefaultDate() {
+        document.getElementById('date').valueAsDate = new Date();
+    }
+
+    function render() {
+        const historyTable = document.getElementById('history-table');
+        historyTable.innerHTML = '';
+        
+        let income = 0, expense = 0;
+        let dRoom = 0, dFood = 0, mRoom = 0, mFood = 0;
+        
+        const today = new Date().toISOString().split('T')[0];
+        const thisMonth = today.substring(0, 7);
+
+        transactions.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(t => {
+            // Totals
+            if(t.type === 'income') income += t.amount;
+            else expense += t.amount;
+
+            // Report Logic
+            if(t.date === today) {
+                if(t.category === "ROOM SALE") dRoom += t.amount;
+                if(t.category === "ROOM FOOD SALE") dFood += t.amount;
+            }
+            if(t.date.startsWith(thisMonth)) {
+                if(t.category === "ROOM SALE") mRoom += t.amount;
+                if(t.category === "ROOM FOOD SALE") mFood += t.amount;
+            }
+
+            // Table
+            const row = `<tr>
+                <td>${t.date}</td>
+                <td class="${t.type === 'income' ? 'type-inc' : 'type-exp'}">${t.category}</td>
+                <td>₹${t.amount}</td>
+                <td><button onclick="deleteEntry(${t.id})" style="background:red; padding:5px 10px; font-size:10px;">X</button></td>
+            </tr>`;
+            historyTable.innerHTML += row;
+        });
+
+        document.getElementById('total-balance').innerText = `₹${income - expense}`;
+        document.getElementById('total-income').innerText = `₹${income}`;
+        document.getElementById('total-expense').innerText = `₹${expense}`;
+        
+        document.getElementById('d-room').innerText = `₹${dRoom}`;
+        document.getElementById('d-food').innerText = `₹${dFood}`;
+        document.getElementById('m-room').innerText = `₹${mRoom}`;
+        document.getElementById('m-food').innerText = `₹${mFood}`;
+    }
+
+    updateCategories();
+    setDefaultDate();
+    render();
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HOTEL ROYAL INN - Management</title>
     <style>
         :root {
